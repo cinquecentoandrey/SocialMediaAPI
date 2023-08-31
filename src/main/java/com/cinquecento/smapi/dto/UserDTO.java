@@ -37,7 +37,6 @@ public class UserDTO {
             message = "Correct format: +79855310868 | +7 (926) 777-77-77 | 89855310868")
     private String telephone;
 
-    @Column(name = "role")
     private String role;
 
     public Long getId() {

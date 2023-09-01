@@ -5,11 +5,13 @@ import com.cinquecento.smapi.dto.UserDTO;
 import com.cinquecento.smapi.model.User;
 import com.cinquecento.smapi.security.JWTUtil;
 import com.cinquecento.smapi.service.UserRegistrationService;
+import com.cinquecento.smapi.util.ErrorMessageBuilder;
+import com.cinquecento.smapi.util.UserConverter;
 import com.cinquecento.smapi.util.UserValidator;
 import com.cinquecento.smapi.util.exception.UserNotCreatedException;
 import com.cinquecento.smapi.util.exception.UserNotLoginException;
 import com.cinquecento.smapi.util.response.UserErrorResponse;
-import org.modelmapper.ModelMapper;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -31,33 +32,27 @@ public class AuthController {
     private final UserRegistrationService userRegistrationService;
     private final UserValidator userValidator;
     private final JWTUtil jwtUtil;
-    private final ModelMapper modelMapper;
+    private final UserConverter userConverter;
     private final AuthenticationManager authenticationManager;
+    private final ErrorMessageBuilder errorMessageBuilder;
 
     @Autowired
-    public AuthController(UserRegistrationService userRegistrationService, UserValidator userValidator, JWTUtil jwtUtil, ModelMapper modelMapper, AuthenticationManager authenticationManager) {
+    public AuthController(UserRegistrationService userRegistrationService, UserValidator userValidator, JWTUtil jwtUtil, UserConverter userConverter, AuthenticationManager authenticationManager, ErrorMessageBuilder errorMessageBuilder) {
         this.userRegistrationService = userRegistrationService;
         this.userValidator = userValidator;
         this.jwtUtil = jwtUtil;
-        this.modelMapper = modelMapper;
+        this.userConverter = userConverter;
         this.authenticationManager = authenticationManager;
+        this.errorMessageBuilder = errorMessageBuilder;
     }
 
     @PostMapping("/registration")
     public Map<String, String> performRegistration(@RequestBody @Valid UserDTO userDTO,
                                                    BindingResult bindingResult) {
-        User user = convertToUser(userDTO);
+        User user = userConverter.convertToUser(userDTO);
 
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMessage = new StringBuilder();
-
-            bindingResult.getFieldErrors().forEach(e -> errorMessage.append(e.getField())
-                    .append(" - ")
-                    .append(e.getDefaultMessage())
-                    .append("; "));
-
-            throw new UserNotCreatedException(errorMessage.toString());
-        }
+        if (bindingResult.hasErrors())
+            throw new UserNotCreatedException(errorMessageBuilder.message(bindingResult));
 
         userRegistrationService.register(user);
 
@@ -102,9 +97,4 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    private User convertToUser(UserDTO userDTO) {
-        return this.modelMapper.map(userDTO, User.class);
-    }
-
-    private UserDTO convertToUserDTO(User user) { return this.modelMapper.map(user, UserDTO.class); }
 }

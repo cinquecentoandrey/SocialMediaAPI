@@ -1,12 +1,8 @@
 package com.cinquecento.smapi.dto;
 
-import com.cinquecento.smapi.model.Post;
-import com.cinquecento.smapi.model.Status;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class UserDTO {
 
@@ -15,6 +11,9 @@ public class UserDTO {
     @NotEmpty(message = "Username should not be empty")
     @Size(min = 2, max = 16, message = "Username length should be between 2 and 16 symbols")
     private String username;
+
+    @NotEmpty(message = "Password should not be empty")
+    private String password;
 
     @NotEmpty(message = "First name should not be empty")
     @Size(min = 2, max = 30, message = "First name length should be between 2 and 30 symbols")
@@ -37,6 +36,7 @@ public class UserDTO {
             message = "Correct format: +79855310868 | +7 (926) 777-77-77 | 89855310868")
     private String telephone;
 
+    @Enumerated(EnumType.ORDINAL)
     private String role;
 
     public Long getId() {
@@ -53,6 +53,14 @@ public class UserDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getFirstName() {
@@ -101,5 +109,20 @@ public class UserDTO {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 }

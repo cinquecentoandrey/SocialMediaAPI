@@ -1,13 +1,15 @@
 package com.cinquecento.smapi.model;
 
 import jakarta.persistence.*;
+import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "Users")
+@Component("User")
 public class User {
 
     @Id
@@ -35,7 +37,7 @@ public class User {
     private String lastName;
 
     @Column(name = "age")
-    @Min(value = 0, message = "Age should be greater than zero")
+    @Min(value = 14, message = "Age should be greater than zero")
     @Max(value = 120, message = "Age should be less than 120")
     private Integer age;
 
@@ -51,12 +53,15 @@ public class User {
     private String email;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     @Column(name = "last_update")
-    private LocalDateTime lastUpdate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUpdate;
 
     @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
     private Status status;
 
     @Column(name = "role")
@@ -65,7 +70,7 @@ public class User {
     @OneToMany(mappedBy = "creator")
     private List<Post> posts;
 
-    public User() {}
+    public User(){}
 
     public User(Long id, String username, String password, String firstName, String lastName, Integer age, String telephone, String email, Status status) {
         this.id = id;
@@ -151,19 +156,19 @@ public class User {
         this.posts = posts;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getLastUpdate() {
+    public Date getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(LocalDateTime lastUpdate) {
+    public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 

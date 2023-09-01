@@ -6,6 +6,7 @@ import com.cinquecento.smapi.service.UserService;
 import com.cinquecento.smapi.util.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void save(User user) {
         userRepository.save(user);
     }
@@ -40,12 +42,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void update(Long id, User updatedUser) {
         updatedUser.setId(id);
         userRepository.save(updatedUser);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
     }

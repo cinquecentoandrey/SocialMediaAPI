@@ -3,11 +3,11 @@ package com.cinquecento.smapi.service.impl;
 import com.cinquecento.smapi.model.User;
 import com.cinquecento.smapi.repository.UserRepository;
 import com.cinquecento.smapi.service.UserService;
+import com.cinquecento.smapi.util.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -20,8 +20,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User user) {
-        return null;
+    public void save(User user) {
+        userRepository.save(user);
     }
 
     @Override
@@ -30,26 +30,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return Optional.empty();
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with username = " + username + " not found"));
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return Optional.empty();
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User with id = " + id + " not found"));
     }
 
     @Override
     public void update(Long id, User updatedUser) {
-
+        updatedUser.setId(id);
+        userRepository.save(updatedUser);
     }
 
     @Override
     public void delete(Long id) {
-        Optional<User> userOpt = userRepository.findById(id);
-
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-        }
+        userRepository.deleteById(id);
     }
 }

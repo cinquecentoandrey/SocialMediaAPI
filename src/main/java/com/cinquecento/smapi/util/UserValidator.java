@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import java.util.Optional;
-
 @Component
 public class UserValidator implements Validator {
 
@@ -28,9 +26,9 @@ public class UserValidator implements Validator {
     public void validate(Object target, Errors errors) {
         User user = (User) target;
 
-        Optional<User> foundUSer = userService.findByUsername(user.getUsername());
+        User foundUSer = userService.findByUsername(user.getUsername());
 
-        if (foundUSer.isPresent()) {
+        if (foundUSer != null) {
             errors.rejectValue("username", "", "This username is already taken.");
         }
     }

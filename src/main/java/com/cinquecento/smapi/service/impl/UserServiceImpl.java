@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -43,9 +45,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void update(Long id, User updatedUser) {
-        updatedUser.setId(id);
-        userRepository.save(updatedUser);
+    public void update(Long id, User userToUpdate) {
+        userToUpdate.setLastUpdate(new Date());
+        userRepository.partUpdate(id, userToUpdate.getUsername(),
+                userToUpdate.getFirstName(), userToUpdate.getLastName(),
+                userToUpdate.getAge(),
+                userToUpdate.getTelephone(),
+                userToUpdate.getEmail(),
+                userToUpdate.getLastUpdate());
     }
 
     @Override

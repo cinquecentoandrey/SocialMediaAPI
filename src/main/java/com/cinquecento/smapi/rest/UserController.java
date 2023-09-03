@@ -45,7 +45,7 @@ public class UserController {
         if (bindingResult.hasErrors())
             throw new UserNotUpdatedException(errorMessageBuilder.message(bindingResult));
 
-        userService.update(id, userService.findById(id));
+        userService.update(id, userConverter.convertToUser(userDTO));
 
         return userDTO;
     }

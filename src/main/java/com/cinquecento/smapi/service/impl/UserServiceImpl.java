@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -35,12 +36,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with username = " + username + " not found"));
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with username = " + username + " not found"));
     }
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User with id = " + id + " not found"));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id = " + id + " not found"));
+    }
+
+    @Override
+    public List<User> findFriendsByUserId(Long id) {
+        return userRepository.findFriendsByUserId(id);
+    }
+
+    @Override
+    public List<User> findFollowersByUserId(Long id) {
+        return userRepository.findFollowersByUserId(id);
+    }
+
+    @Override
+    @Transactional
+    public void subscribe(Long userId, Long subId) throws SQLException {
+        userRepository.subscribe(userId, subId);
+    }
+
+    @Override
+    @Transactional
+    public void unsubscribe(Long userId, Long unsubId) {
+        userRepository.unsubscribe(userId, unsubId);
+    }
+
+    @Override
+    public void addFriend(Long firstId, Long secondId) throws SQLException {
+        userRepository.addFriend(firstId, secondId);
+    }
+
+    @Override
+    public void removeFriend(Long firstId, Long secondId) {
+        userRepository.removeFriend(firstId, secondId);
     }
 
     @Override

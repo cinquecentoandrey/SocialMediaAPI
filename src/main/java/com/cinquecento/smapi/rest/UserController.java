@@ -2,15 +2,13 @@ package com.cinquecento.smapi.rest;
 
 import com.cinquecento.smapi.dto.PostDTO;
 import com.cinquecento.smapi.dto.UserDTO;
-import com.cinquecento.smapi.model.User;
-import com.cinquecento.smapi.security.UserDetails;
 import com.cinquecento.smapi.service.PostService;
 import com.cinquecento.smapi.service.impl.UserServiceImpl;
 import com.cinquecento.smapi.util.CurrentUserInfo;
 import com.cinquecento.smapi.util.ErrorMessageBuilder;
 import com.cinquecento.smapi.util.PostConverter;
 import com.cinquecento.smapi.util.UserConverter;
-import com.cinquecento.smapi.util.exception.InviteError;
+import com.cinquecento.smapi.util.exception.InviteException;
 import com.cinquecento.smapi.util.exception.UserNotFoundException;
 import com.cinquecento.smapi.util.exception.UserNotUpdatedException;
 import com.cinquecento.smapi.util.response.UserErrorResponse;
@@ -18,8 +16,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -107,7 +103,7 @@ public class UserController {
         try {
             userService.subscribe(id, currentUserInfo.getCurrentUser().getId());
         } catch (SQLException e) {
-            throw new InviteError(e.getMessage());
+            throw new InviteException(e.getMessage());
         }
 
         return new ResponseEntity<>("Send invite to user with id = " + id, HttpStatus.ACCEPTED);
@@ -137,7 +133,7 @@ public class UserController {
 
             userService.subscribe(id, currentUserInfo.getCurrentUser().getId());
         } catch (SQLException e) {
-            throw new InviteError("U can't send invite to this user");
+            throw new InviteException("U can't send invite to this user");
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -164,7 +160,7 @@ public class UserController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handledException(InviteError exception) {
+    private ResponseEntity<UserErrorResponse> handledException(InviteException exception) {
         UserErrorResponse response = new UserErrorResponse(
                 exception.getMessage(),
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())

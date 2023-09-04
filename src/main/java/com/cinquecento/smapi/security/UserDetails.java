@@ -54,4 +54,8 @@ public class UserDetails implements org.springframework.security.core.userdetail
         return true;
         //return user.getStatus().equals(Status.ACTIVE);
     }
+
+    public User getUser() {
+        return this.user;
+    }
 }

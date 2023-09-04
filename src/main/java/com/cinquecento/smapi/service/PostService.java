@@ -1,6 +1,7 @@
 package com.cinquecento.smapi.service;
 
 import com.cinquecento.smapi.model.Post;
+import com.cinquecento.smapi.model.User;
 
 import java.util.List;
 
@@ -13,6 +14,10 @@ public interface PostService {
     List<Post> findAllByUserId(Long id);
 
     Post findById(Long id);
+
+    boolean findByUser(User user);
+
+    List<Post> findAllFriendsPosts(Long userId);
 
     void update(Long id, Post updatedPost);
 

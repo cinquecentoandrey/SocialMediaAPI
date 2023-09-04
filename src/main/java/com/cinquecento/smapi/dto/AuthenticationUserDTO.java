@@ -1,9 +1,8 @@
 package com.cinquecento.smapi.dto;
 
-import jakarta.persistence.Column;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 public class AuthenticationUserDTO {
 

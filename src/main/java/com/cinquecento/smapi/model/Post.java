@@ -1,15 +1,13 @@
 package com.cinquecento.smapi.model;
 
 import jakarta.persistence.*;
-import org.springframework.data.domain.Persistable;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "Posts")
 public class Post {
 
     @Id

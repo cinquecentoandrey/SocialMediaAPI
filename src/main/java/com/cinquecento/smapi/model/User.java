@@ -1,9 +1,12 @@
 package com.cinquecento.smapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
 import jakarta.validation.constraints.*;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -69,6 +72,34 @@ public class User {
 
     @OneToMany(mappedBy = "creator")
     private List<Post> posts;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinTable(name = "friends",
+            joinColumns = @JoinColumn(name = "first_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "second_user_id"))
+    private List<User> friends = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinTable(name = "friends",
+            joinColumns = @JoinColumn(name = "second_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "first_user_id"))
+    private List<User> friendOf = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinTable(name = "followers",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id"))
+    private List<User> followers = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinTable(name = "followers",
+            joinColumns = @JoinColumn(name = "follower_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> followerOf = new ArrayList<>();
 
     public User(){}
 
@@ -186,5 +217,37 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<User> friends) {
+        this.friends = friends;
+    }
+
+    public List<User> getFriendOf() {
+        return friendOf;
+    }
+
+    public void setFriendOf(List<User> friendOf) {
+        this.friendOf = friendOf;
+    }
+
+    public List<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(List<User> followers) {
+        this.followers = followers;
+    }
+
+    public List<User> getFollowerOf() {
+        return followerOf;
+    }
+
+    public void setFollowerOf(List<User> followerOf) {
+        this.followerOf = followerOf;
     }
 }

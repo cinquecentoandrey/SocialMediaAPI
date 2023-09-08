@@ -2,6 +2,7 @@ package com.cinquecento.smapi.rest;
 
 import com.cinquecento.smapi.dto.PostDTO;
 import com.cinquecento.smapi.dto.UserDTO;
+import com.cinquecento.smapi.model.User;
 import com.cinquecento.smapi.service.PostService;
 import com.cinquecento.smapi.service.impl.UserServiceImpl;
 import com.cinquecento.smapi.util.CurrentUserInfo;
@@ -49,27 +50,31 @@ public class UserController {
         this.currentUserInfo = currentUserInfo;
     }
 
+    @GetMapping("/my-page")
+    public UserDTO get() {
+        return userConverter.convertToUserDTO(currentUserInfo.getCurrentUser());
+    }
+
     @GetMapping("/{id}")
     public UserDTO get(@PathVariable(name = "id") Long id) throws UserNotFoundException {
         return userConverter.convertToUserDTO(userService.findById(id));
     }
 
-    @PatchMapping("/{id}")
-    public UserDTO update(@PathVariable(name = "id") Long id,
-                          @RequestBody @Valid UserDTO userDTO,
+    @PatchMapping("/update")
+    public UserDTO update(@RequestBody @Valid UserDTO userDTO,
                           BindingResult bindingResult) {
 
         if (bindingResult.hasErrors())
             throw new UserNotUpdatedException(errorMessageBuilder.message(bindingResult));
 
-        userService.update(id, userConverter.convertToUser(userDTO));
+        userService.update(currentUserInfo.getCurrentUser().getId(), userConverter.convertToUser(userDTO));
 
         return userDTO;
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
-        userService.delete(id);
+    @DeleteMapping("/delete")
+    public ResponseEntity<HttpStatus> delete() {
+        userService.delete(currentUserInfo.getCurrentUser().getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -82,7 +87,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<UserDTO> friends(@PathVariable(name = "id") Long id) {
+    public List<UserDTO> friends(@PathVariable(name = "id") Long id) throws UserNotFoundException {
         return userService.findFriendsByUserId(id)
                 .stream()
                 .map(userConverter::convertToUserDTO)
@@ -90,15 +95,23 @@ public class UserController {
     }
 
     @GetMapping("/{id}/subscribers")
-    public List<UserDTO> subscribers(@PathVariable(name = "id") Long id) {
+    public List<UserDTO> subscribers(@PathVariable(name = "id") Long id) throws UserNotFoundException {
         return userService.findFollowersByUserId(id)
                 .stream()
                 .map(userConverter::convertToUserDTO)
                 .toList();
     }
 
+    @GetMapping("/current/friend-requests")
+    public List<UserDTO> friendRequests() {
+        return userService.findUnfriendedUsersByUserId(currentUserInfo.getCurrentUser().getId())
+                .stream()
+                .map(userConverter::convertToUserDTO)
+                .toList();
+    }
+
     @PostMapping("/{id}/send-invite")
-    public ResponseEntity<?> sendInvite(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> sendInvite(@PathVariable(name = "id") Long id) throws UserNotFoundException {
 
         try {
             userService.subscribe(id, currentUserInfo.getCurrentUser().getId());
@@ -106,34 +119,51 @@ public class UserController {
             throw new InviteException(e.getMessage());
         }
 
-        return new ResponseEntity<>("Send invite to user with id = " + id, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Send invite to user with id = " + id, HttpStatus.OK);
     }
 
     @PostMapping("/{id}/unsubscribe")
-    public ResponseEntity<?> unsubscribe(@PathVariable(name = "id") Long id) {
-        userService.unsubscribe(id, currentUserInfo.getCurrentUser().getId());
+    public ResponseEntity<HttpStatus> unsubscribe(@PathVariable(name = "id") Long id) {
+
+        if (userService.exist(id)) {
+            userService.unsubscribe(id, currentUserInfo.getCurrentUser().getId());
+        } else {
+            throw new UserNotFoundException("User with id = " + id + " not found");
+        }
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/{id}/delete-subscriber")
-    public ResponseEntity<?> deleteSubscriber(@PathVariable(name = "id") Long id) {
-        userService.unsubscribe(currentUserInfo.getCurrentUser().getId(), id);
+    public ResponseEntity<HttpStatus> deleteSubscriber(@PathVariable(name = "id") Long id) {
+
+        if (userService.exist(id)) {
+            userService.unsubscribe(currentUserInfo.getCurrentUser().getId(), id);
+        } else {
+            throw new UserNotFoundException("Subscriber with id = " + id + " not found");
+        }
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/{id}/accept-invite")
-    public ResponseEntity<?> acceptInvite(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<HttpStatus> acceptInvite(@PathVariable(name = "id") Long id) {
 
-        try {
-            if (currentUserInfo.getCurrentUser().getId() < id) {
-                userService.addFriend(currentUserInfo.getCurrentUser().getId(), id);
-            } else {
-                userService.addFriend(id, currentUserInfo.getCurrentUser().getId());
+        if (userService.exist(id)) {
+            try {
+
+                if (currentUserInfo.getCurrentUser().getId() < id) {
+                    userService.addFriend(currentUserInfo.getCurrentUser().getId(), id);
+                } else {
+                    userService.addFriend(id, currentUserInfo.getCurrentUser().getId());
+                }
+
+                userService.subscribe(id, currentUserInfo.getCurrentUser().getId());
+            } catch (SQLException e) {
+                throw new InviteException("U can't send invite to this user");
             }
-
-            userService.subscribe(id, currentUserInfo.getCurrentUser().getId());
-        } catch (SQLException e) {
-            throw new InviteException("U can't send invite to this user");
+        } else {
+            throw new UserNotFoundException("You don't have a subscriber with id = " + id);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -156,7 +186,7 @@ public class UserController {
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
@@ -166,6 +196,6 @@ public class UserController {
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

@@ -57,6 +57,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findUnfriendedUsersByUserId(Long id) {
+        return userRepository.findUnfriendedUsersByUserId(id);
+    }
+
+    @Override
     @Transactional
     public void subscribe(Long userId, Long subId) throws SQLException {
         userRepository.subscribe(userId, subId);
@@ -69,11 +74,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void addFriend(Long firstId, Long secondId) throws SQLException {
         userRepository.addFriend(firstId, secondId);
+        userRepository.updateFriendship(firstId, secondId);
     }
 
     @Override
+    @Transactional
     public void removeFriend(Long firstId, Long secondId) {
         userRepository.removeFriend(firstId, secondId);
     }
@@ -88,6 +96,11 @@ public class UserServiceImpl implements UserService {
                 userToUpdate.getTelephone(),
                 userToUpdate.getEmail(),
                 userToUpdate.getLastUpdate());
+    }
+
+    @Override
+    public boolean exist(Long id) {
+        return userRepository.existsById(id);
     }
 
     @Override

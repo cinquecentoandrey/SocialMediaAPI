@@ -1,12 +1,11 @@
 package com.cinquecento.smapi.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+
+import java.util.Date;
 
 public class PostDTO {
 
@@ -18,6 +17,12 @@ public class PostDTO {
 
     @Size(max = 256, message = "Content should be less than 100 symbols")
     private String content;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUpdate;
 
     public Long getId() {
         return id;
@@ -41,5 +46,21 @@ public class PostDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

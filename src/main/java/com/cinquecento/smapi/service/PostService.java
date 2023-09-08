@@ -15,7 +15,7 @@ public interface PostService {
 
     Post findById(Long id);
 
-    boolean findByUser(User user);
+    boolean findByUserAndId(User user, Long id);
 
     List<Post> findAllFriendsPosts(Long userId);
 

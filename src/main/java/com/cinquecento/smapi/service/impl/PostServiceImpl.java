@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -48,20 +49,26 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public boolean findByUser(User user) {
-        return postRepository.findByCreator(user).isPresent();
+    public boolean findByUserAndId(User user, Long postId) {
+        return postRepository.findByCreatorAndId(user, postId).isPresent();
     }
 
     @Override
     public List<Post> findAllFriendsPosts(Long userId) {
-        return postRepository.findAllFriendsPosts(userId);
+        return postRepository.findAllFriendsPosts(userId)
+                .stream()
+                .sorted(Comparator.comparing(Post::getLastUpdate).reversed())
+                .toList();
     }
 
     @Override
     @Transactional
     public void update(Long id, Post postToUpdate) {
         postToUpdate.setLastUpdate(new Date());
-        postRepository.partUpdate(id, postToUpdate.getArticle(), postToUpdate.getContent());
+        postRepository.partUpdate(id,
+                postToUpdate.getArticle(),
+                postToUpdate.getContent(),
+                postToUpdate.getLastUpdate());
     }
 
     @Override

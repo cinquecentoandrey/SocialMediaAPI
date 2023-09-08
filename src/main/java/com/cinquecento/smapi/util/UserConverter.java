@@ -1,5 +1,6 @@
 package com.cinquecento.smapi.util;
 
+import com.cinquecento.smapi.dto.RegistrationUserDTO;
 import com.cinquecento.smapi.dto.UserDTO;
 import com.cinquecento.smapi.model.User;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,8 @@ public class UserConverter {
     public User convertToUser(UserDTO userDTO) {
         return this.modelMapper.map(userDTO, User.class);
     }
-
+    public User convertToUser(RegistrationUserDTO userDTO) {
+        return this.modelMapper.map(userDTO, User.class);
+    }
     public UserDTO convertToUserDTO(User user) { return this.modelMapper.map(user, UserDTO.class); }
 }

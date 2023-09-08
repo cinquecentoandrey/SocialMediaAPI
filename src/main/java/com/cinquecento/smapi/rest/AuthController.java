@@ -1,6 +1,7 @@
 package com.cinquecento.smapi.rest;
 
 import com.cinquecento.smapi.dto.AuthenticationUserDTO;
+import com.cinquecento.smapi.dto.RegistrationUserDTO;
 import com.cinquecento.smapi.dto.UserDTO;
 import com.cinquecento.smapi.model.User;
 import com.cinquecento.smapi.security.JWTUtil;
@@ -48,7 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public Map<String, String> performRegistration(@RequestBody @Valid UserDTO userDTO,
+    public Map<String, String> performRegistration(@RequestBody @Valid RegistrationUserDTO userDTO,
                                                    BindingResult bindingResult) {
         User user = userConverter.convertToUser(userDTO);
 

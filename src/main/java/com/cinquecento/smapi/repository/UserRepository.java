@@ -29,18 +29,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     @Param(value = "email") String email,
                     @Param(value = "last_update") Date last_update);
 
-    @Query(value = "SELECT DISTINCT " +
-            "U.*\n" +
+    @Query(value = "SELECT DISTINCT U.*\n" +
             "FROM Friends AS F\n" +
-            "JOIN Users AS U ON (F.fist_user_id = U.id OR F.second_user_id = U.id) and (U.id <> :id)\n" +
-            "WHERE F.fist_user_id= :id OR F.second_user_id= :id", nativeQuery = true)
+            "JOIN Users AS U ON (F.first_user_id = U.id OR F.second_user_id = U.id) AND (U.id <> :id)\n" +
+            "WHERE F.first_user_id=:id OR F.second_user_id=:id", nativeQuery = true)
     List<User> findFriendsByUserId(@Param("id") Long id);
 
-    @Query(value = "SELECT DISTINCT U.*\n" +
+    @Query(value = "SELECT DISTINCT U.* \n" +
+            "FROM Followers AS F\n" +
+            "JOIN Users AS U ON (F.user_id = U.id OR F.follower_id = U.id) AND (U.id <> :id) \n" +
+            "WHERE F.user_id=:id OR F.follower_id=:id", nativeQuery = true)
+    List<User> findFollowersByUserId(@Param("id") Long id);
+
+    @Query(value = "SELECT DISTINCT U.* \n" +
             "FROM Followers AS F\n" +
             "JOIN Users AS U ON (F.user_id = U.id OR F.follower_id = U.id) and (U.id <> :id) \n" +
-            "WHERE F.user_id= :id OR F.follower_id= :id", nativeQuery = true)
-    List<User> findFollowersByUserId(@Param("id") Long id);
+            "WHERE (F.user_id=:id OR F.follower_id=:id) AND NOT is_friend", nativeQuery = true)
+    List<User> findUnfriendedUsersByUserId(@Param("id") Long id);
 
     @Modifying
     @Query(value = "INSERT INTO Followers values(:userId, :subId)", nativeQuery = true)
@@ -55,6 +60,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void addFriend(@Param("userId") Long id, @Param("subId") Long friendId);
 
     @Modifying
+    @Query(value = "UPDATE Followers SET is_friend=true WHERE user_id IN (:userId, :subId)", nativeQuery = true)
+    void updateFriendship(@Param("userId") Long id, @Param("subId") Long friendId);
+
+    @Modifying
     @Query(value = "DELETE FROM Friends WHERE first_user_id=:firstId AND second_user_id=:secondId", nativeQuery = true)
     void removeFriend(@Param("firstId") Long firstId, @Param("secondId") Long secondId);
+
 }

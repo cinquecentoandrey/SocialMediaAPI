@@ -3,7 +3,7 @@ package com.cinquecento.smapi.rest;
 import com.cinquecento.smapi.dto.PostDTO;
 import com.cinquecento.smapi.model.Post;
 import com.cinquecento.smapi.model.User;
-import com.cinquecento.smapi.service.PostService;
+import com.cinquecento.smapi.service.impl.PostServiceImpl;
 import com.cinquecento.smapi.util.CurrentUserInfo;
 import com.cinquecento.smapi.util.ErrorMessageBuilder;
 import com.cinquecento.smapi.util.PostConverter;
@@ -25,14 +25,14 @@ import java.util.List;
 @RequestMapping("/api/v1/posts")
 public class PostController {
 
-    private final PostService postService;
+    private final PostServiceImpl postService;
     private final PostConverter postConverter;
     private final ErrorMessageBuilder errorMessageBuilder;
     private final CurrentUserInfo currentUserInfo;
 
 
     @Autowired
-    public PostController(PostService postService, PostConverter postConverter, ErrorMessageBuilder errorMessageBuilder, CurrentUserInfo currentUserInfo) {
+    public PostController(PostServiceImpl postService, PostConverter postConverter, ErrorMessageBuilder errorMessageBuilder, CurrentUserInfo currentUserInfo) {
         this.postService = postService;
         this.postConverter = postConverter;
         this.errorMessageBuilder = errorMessageBuilder;
@@ -60,14 +60,14 @@ public class PostController {
         return postDTO;
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/update/{id}")
     public PostDTO update(@PathVariable(name = "id") Long id,
                           @RequestBody @Valid PostDTO postDTO,
                           BindingResult bindingResult) {
 
         User user = currentUserInfo.getCurrentUser();
 
-        if (postService.findByUser(user)) {
+        if (postService.findByUserAndId(user, id)) {
             if (bindingResult.hasErrors()) {
                 throw new PostNotUpdatedException(errorMessageBuilder.message(bindingResult));
             }
@@ -79,7 +79,7 @@ public class PostController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
         postService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -100,7 +100,7 @@ public class PostController {
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
@@ -110,7 +110,7 @@ public class PostController {
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

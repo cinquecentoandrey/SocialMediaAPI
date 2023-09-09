@@ -53,6 +53,7 @@ public class AuthController {
                                                    BindingResult bindingResult) {
         User user = userConverter.convertToUser(userDTO);
 
+        userValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors())
             throw new UserNotCreatedException(errorMessageBuilder.message(bindingResult));
 

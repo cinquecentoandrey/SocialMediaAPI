@@ -2,13 +2,9 @@ package com.cinquecento.smapi.rest;
 
 import com.cinquecento.smapi.dto.PostDTO;
 import com.cinquecento.smapi.dto.UserDTO;
-import com.cinquecento.smapi.model.User;
 import com.cinquecento.smapi.service.PostService;
 import com.cinquecento.smapi.service.impl.UserServiceImpl;
-import com.cinquecento.smapi.util.CurrentUserInfo;
-import com.cinquecento.smapi.util.ErrorMessageBuilder;
-import com.cinquecento.smapi.util.PostConverter;
-import com.cinquecento.smapi.util.UserConverter;
+import com.cinquecento.smapi.util.*;
 import com.cinquecento.smapi.util.exception.InviteException;
 import com.cinquecento.smapi.util.exception.UserNotFoundException;
 import com.cinquecento.smapi.util.exception.UserNotUpdatedException;
@@ -35,19 +31,21 @@ public class UserController {
     private final PostService postService;
     private final PostConverter postConverter;
     private final CurrentUserInfo currentUserInfo;
+    private final UserValidator userValidator;
 
     @Autowired
     public UserController(UserServiceImpl userService,
                           UserConverter userConverter,
                           ErrorMessageBuilder errorMessageBuilder,
                           PostService postService,
-                          PostConverter postConverter, CurrentUserInfo currentUserInfo) {
+                          PostConverter postConverter, CurrentUserInfo currentUserInfo, UserValidator userValidator) {
         this.userService = userService;
         this.userConverter = userConverter;
         this.errorMessageBuilder = errorMessageBuilder;
         this.postService = postService;
         this.postConverter = postConverter;
         this.currentUserInfo = currentUserInfo;
+        this.userValidator = userValidator;
     }
 
     @GetMapping("/my-page")
@@ -64,6 +62,7 @@ public class UserController {
     public UserDTO update(@RequestBody @Valid UserDTO userDTO,
                           BindingResult bindingResult) {
 
+        userValidator.validate(userDTO, bindingResult);
         if (bindingResult.hasErrors())
             throw new UserNotUpdatedException(errorMessageBuilder.message(bindingResult));
 

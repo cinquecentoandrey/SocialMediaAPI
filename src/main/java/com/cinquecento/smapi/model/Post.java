@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "Posts")
@@ -35,6 +36,9 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User creator;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments;
 
     public Post() {}
 
@@ -89,5 +93,13 @@ public class Post {
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

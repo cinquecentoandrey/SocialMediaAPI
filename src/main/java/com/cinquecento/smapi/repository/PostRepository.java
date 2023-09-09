@@ -1,5 +1,6 @@
 package com.cinquecento.smapi.repository;
 
+import com.cinquecento.smapi.model.Comment;
 import com.cinquecento.smapi.model.Post;
 import com.cinquecento.smapi.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,5 +37,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "Join Posts AS P ON p.user_id = u.id\n" +
             "WHERE F.first_user_id=:userId OR F.second_user_id=:userId", nativeQuery = true)
     List<Post> findAllFriendsPosts(@Param("userId") Long userId);
+
+    @Modifying
+    @Query(value = "INSERT INTO Comments(content,created_at, post_id, user_id) VALUES (:content, :createdAt, :postId, :userId)", nativeQuery = true)
+    void addComment(@Param("postId") Long postId,
+                    @Param("userId") Long userId,
+                    @Param("content") String content,
+                    @Param("createdAt") Date createdAt);
 
 }

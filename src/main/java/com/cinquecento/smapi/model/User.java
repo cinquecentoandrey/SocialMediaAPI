@@ -73,6 +73,9 @@ public class User {
     @OneToMany(mappedBy = "creator")
     private List<Post> posts;
 
+    @OneToMany(mappedBy = "creator")
+    private List<Comment> comments;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinTable(name = "friends",
@@ -249,5 +252,13 @@ public class User {
 
     public void setFollowerOf(List<User> followerOf) {
         this.followerOf = followerOf;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

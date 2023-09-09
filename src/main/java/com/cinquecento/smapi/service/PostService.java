@@ -1,5 +1,6 @@
 package com.cinquecento.smapi.service;
 
+import com.cinquecento.smapi.model.Comment;
 import com.cinquecento.smapi.model.Post;
 import com.cinquecento.smapi.model.User;
 
@@ -22,4 +23,8 @@ public interface PostService {
     void update(Long id, Post updatedPost);
 
     void delete(Long id);
+
+    void addComment(Long postId, Long userId, Comment comment);
+
+    List<Comment> getCommentsById(Long id);
 }

@@ -1,11 +1,14 @@
 package com.cinquecento.smapi.service.impl;
 
+import com.cinquecento.smapi.model.Comment;
 import com.cinquecento.smapi.model.Post;
 import com.cinquecento.smapi.model.User;
+import com.cinquecento.smapi.repository.CommentRepository;
 import com.cinquecento.smapi.repository.PostRepository;
 import com.cinquecento.smapi.service.PostService;
 import com.cinquecento.smapi.util.exception.PostNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +21,12 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -75,5 +80,16 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void delete(Long id) {
         postRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void addComment(Long postId, Long userId, Comment comment) {
+        comment.setCreatedAt(new Date());
+        postRepository.addComment(postId, userId, comment.getContent(), comment.getCreatedAt());
+    }
+
+    public List<Comment> getCommentsById(Long id) {
+        return commentRepository.findAllByPost_Id(id, Sort.by("createdAt").descending());
     }
 }
